@@ -1,5 +1,4 @@
 import os
-import smtplib
 from flask import Flask, render_template, redirect, url_for, flash, request, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
@@ -12,16 +11,13 @@ from forms import RegistrationForm, CreatePostForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 from functools import wraps
 
-EMAIL = os.environ.get("EMAIL")
-PASSWORD = os.environ.get("PASSWORD")
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", )
 ckeditor = CKEditor(app)
 Bootstrap(app)
 gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=False, force_lower=False, use_ssl=False, base_url=None)
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",  "sqlite:///blog.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -178,26 +174,9 @@ def about():
     return render_template("about.html", logged_in=current_user.is_authenticated)
 
 
-@app.route("/contact.html", methods=['get', 'post'])
+@app.route("/contact")
 def contact():
-    if request.method == "POST":
-        data = request.form
-        print(data["Name"])
-        print(data["Email"])
-        print(data["Contact-no"])
-        print(data["Message"])
-        connection = smtplib.SMTP("smtp.gmail.com")
-        connection.starttls()
-        connection.login(user=EMAIL, password=PASSWORD)
-        connection.sendmail(from_addr=EMAIL,
-                            to_addrs="smhj022@gmail.com",
-                            msg=f"subject:New Message\n\n"
-                                f"Name : {data['Name']}\n"
-                                f"Email: {data['Email']}\n"
-                                f"Contact-No. : {data['Contact-no']}\n"
-                                f"Message: {data['Message']}")
-        return render_template("contact.html", message="Successfully sent your message.")
-    return render_template("contact.html", message="Contact Me")
+    return render_template("contact.html", logged_in=current_user.is_authenticated)
 
 
 @app.route("/new-post", methods=['get', 'post'])
