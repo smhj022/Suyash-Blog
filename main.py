@@ -182,10 +182,6 @@ def about():
 def contact():
     if request.method == "POST":
         data = request.form
-        print(data["Name"])
-        print(data["Email"])
-        print(data["Phone-No"])
-        print(data["Message"])
         connection = smtplib.SMTP("smtp.gmail.com")
         connection.starttls()
         connection.login(user=EMAIL, password=PASSWORD)
