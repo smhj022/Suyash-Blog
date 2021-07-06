@@ -12,8 +12,6 @@ from forms import RegistrationForm, CreatePostForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 from functools import wraps
 
-# EMAIL = "suyashmahajan130697@gmail.com"
-# PASSWORD = "qwerty@1234"
 EMAIL = os.environ.get("EMAIL")
 PASSWORD = os.environ.get("PASSWORD")
 
