@@ -1,4 +1,5 @@
 import os
+import smtplib
 from flask import Flask, render_template, redirect, url_for, flash, request, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
@@ -11,6 +12,8 @@ from forms import RegistrationForm, CreatePostForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 from functools import wraps
 
+EMAIL = "suyashmahajan130697@gmail.com"
+PASSWORD = "qwerty@1234"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -175,9 +178,29 @@ def about():
     return render_template("about.html", logged_in=current_user.is_authenticated)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["get", "post"])
 def contact():
-    return render_template("contact.html", logged_in=current_user.is_authenticated)
+    if request.method == "POST":
+        data = request.form
+        print(data["Name"])
+        print(data["Email"])
+        print(data["Phone-No"])
+        print(data["Message"])
+        connection = smtplib.SMTP("smtp.gmail.com")
+        connection.starttls()
+        connection.login(user=EMAIL, password=PASSWORD)
+        connection.sendmail(from_addr=EMAIL,
+                            to_addrs="smhj022@gmail.com",
+                            msg=f"subject:New Message\n\n"
+                                f"Name : {data['Name']}\n"
+                                f"Email: {data['Email']}\n"
+                                f"Contact-No. : {data['Phone-No']}\n"
+                                f"Message: {data['Message']}")
+        return render_template("contact.html", logged_in=current_user.is_authenticated,
+                               message="Successfully sent your message.")
+    return render_template("contact.html", logged_in=current_user.is_authenticated,
+                           message="Contact Me")
+
 
 
 @app.route("/new-post", methods=['get', 'post'])
