@@ -181,19 +181,33 @@ def about():
 @app.route("/contact", methods=["get", "post"])
 def contact():
     if request.method == "POST":
-        data = request.form
-        connection = smtplib.SMTP("smtp.gmail.com")
-        connection.starttls()
-        connection.login(user=EMAIL, password=PASSWORD)
-        connection.sendmail(from_addr=EMAIL,
-                            to_addrs="smhj022@gmail.com",
-                            msg=f"subject:New Message\n\n"
-                                f"Name : {data['Name']}\n"
-                                f"Email: {data['Email']}\n"
-                                f"Contact-No. : {data['Phone-No']}\n"
-                                f"Message: {data['Message']}")
-        return render_template("contact.html", logged_in=current_user.is_authenticated,
-                               message="Successfully sent your message.")
+
+        try:
+            data = request.form
+
+            to = [(data.get('Email')).strip(), EMAIL]
+            subject = f'Thank you - {data.get("Email")}'
+            body = f'Your message \n {data.get("Message")}'
+
+            email_text = """\
+            From: %s
+            To: %s
+            Subject: %s
+
+            %s
+            """ % (EMAIL, ", ".join(to), subject, body)
+
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.ehlo()
+            server.login(user=EMAIL, password=PASSWORD)
+            server.sendmail(EMAIL, to, email_text)
+            server.close()
+
+            return render_template("contact.html", logged_in=current_user.is_authenticated,
+                                   message="Successfully sent your message.")
+        except:
+            print('Something went wrong...')
+
     return render_template("contact.html", logged_in=current_user.is_authenticated,
                            message="Contact Me")
 
